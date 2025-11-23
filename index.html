@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUMA X1 - 极简无线鼠标</title>
+    <style>
+        /* --- 1. 极简电商风格 CSS --- */
+        :root {
+            --text-main: #1d1d1f;
+            --text-sec: #86868b;
+            --accent: #0071e3; /* 苹果蓝 */
+            --bg: #fbfbfd;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            background-color: var(--bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* 导航栏 */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(251, 251, 253, 0.8);
+            backdrop-filter: blur(20px);
+            z-index: 100;
+            box-sizing: border-box;
+        }
+        .logo { font-weight: 700; font-size: 1.2rem; letter-spacing: -0.5px; }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-sec);
+            margin-left: 30px;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover { color: var(--text-main); }
+        .buy-btn-nav {
+            background: var(--text-main);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-left: 20px;
+        }
+
+        /* 3D 画布 (固定在背景) */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none; /* 允许点击穿透 */
+        }
+
+        /* 页面内容层 */
+        .content {
+            position: relative;
+            z-index: 2;
+        }
+
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 10%;
+            box-sizing: border-box;
+        }
+
+        /* 第一屏：Hero */
+        .hero {
+            align-items: flex-start;
+            width: 50%; /* 左半边放文字，右半边留给3D鼠标 */
+        }
+        .new-tag {
+            color: #d46b08;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        h1 {
+            font-size: 4.5rem;
+            line-height: 1.1;
+            margin: 10px 0;
+            letter-spacing: -2px;
+        }
+        p.desc {
+            font-size: 1.5rem;
+            color: var(--text-sec);
+            margin-bottom: 30px;
+            max-width: 400px;
+            line-height: 1.4;
+        }
+        .price {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .cta-group { display: flex; gap: 15px; }
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+        .btn-primary:hover { transform: scale(1.05); }
+        .btn-link {
+            color: var(--accent);
+            padding: 12px 10px;
+            text-decoration: none;
+        }
+
+        /* 第二屏：卖点网格 */
+        .features {
+            align-items: center;
+            background: rgba(255,255,255,0.5); /* 微微遮挡一下3D模型 */
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            width: 100%;
+            margin-top: 50px;
+        }
+        .card {
+            background: #fff;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        .card:hover { transform: translateY(-10px); }
+        .card h3 { margin-top: 0; font-size: 1.5rem; }
+        .card p { color: var(--text-sec); line-height: 1.6; }
+
+        /* 第三屏：页脚区域 */
+        .footer-section {
+            height: 60vh;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .hero { width: 100%; padding-top: 300px; /* 给模型留位置 */ }
+            h1 { font-size: 3rem; }
+            .grid { grid-template-columns: 1fr; }
+            nav { padding: 20px; }
+            .nav-links { display: none; } /* 简单隐藏链接 */
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">LUMA</div>
+        <div class="nav-links">
+            <a href="#">概览</a>
+            <a href="#">技术规格</a>
+            <a href="#">比较</a>
+            <a href="#" class="buy-btn-nav">购买</a>
+        </div>
+    </nav>
+
+    <div id="canvas-container"></div>
+
+    <div class="content">
+        <!-- 第一屏 -->
+        <section class="hero">
+            <div class="new-tag">全新发布</div>
+            <h1>LUMA X1<br>静若止水。</h1>
+            <p class="desc">专为创意工作者打造。以纯粹的形式，承载无限的灵感。</p>
+            <div class="price">RMB 599 起</div>
+            <div class="cta-group">
+                <a href="#" class="btn-primary">购买</a>
+                <a href="#" class="btn-link">观看影片 ></a>
+            </div>
+        </section>
+
+        <!-- 第二屏 -->
+        <section class="features">
+            <h2 style="font-size: 2.5rem; margin-bottom: 10px;">核心优势</h2>
+            <p style="color: var(--text-sec);">不仅仅是好看，更是生产力工具。</p>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>70天续航</h3>
+                    <p>充电一次，使用两个月。Type-C 快速充电，充电1分钟，使用3小时。</p>
+                </div>
+                <div class="card">
+                    <h3>静音微动</h3>
+                    <p>减少 90% 的点击噪音。在咖啡馆或图书馆，只有灵感在喧嚣。</p>
+                </div>
+                <div class="card">
+                    <h3>MagSpeed</h3>
+                    <p>全新电磁滚轮，一秒滑动 1000 行，精准定格每一个像素。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第三屏 -->
+        <section class="footer-section">
+            <h2 style="font-size: 3rem;">LUMA X1</h2>
+            <p>轻盈，却充满力量。</p>
+            <br>
+            <a href="#" class="btn-primary" style="background: #000;">立即订购</a>
+        </section>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // --- 1. 场景设置 ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xfbfbfd); // 纯净的浅灰白色背景
+        
+        // 添加一点点很淡的雾，让底部和背景融合
+        scene.fog = new THREE.Fog(0xfbfbfd, 10, 20);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        // 初始相机位置
+        camera.position.set(0, 2, 8);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true; // 开启阴影
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // 柔和阴影
+        container.appendChild(renderer.domElement);
+
+        // --- 2. 影棚级布光 (柔和、高级) ---
+        
+        // 环境光：基础亮度
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6); 
+        scene.add(ambientLight);
+
+        // 主光：产生主要的形状感
+        const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        keyLight.position.set(5, 10, 7);
+        keyLight.castShadow = true;
+        keyLight.shadow.mapSize.width = 2048;
+        keyLight.shadow.mapSize.height = 2048;
+        keyLight.shadow.bias = -0.0001;
+        scene.add(keyLight);
+
+        // 补光：照亮暗部，带一点冷色调
+        const fillLight = new THREE.DirectionalLight(0xeef5ff, 0.4);
+        fillLight.position.set(-5, 2, -5);
+        scene.add(fillLight);
+
+        // --- 3. 构建产品级鼠标模型 ---
+        const mouseGroup = new THREE.Group();
+
+        // 材质：哑光黑 (Matte Black) 或 深空灰
+        const mouseMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x2a2a2a,   // 深灰色
+            roughness: 0.4,    // 稍微有点磨砂感
+            metalness: 0.1,    // 一点点金属感
+        });
+        
+        const detailMaterial = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2 }); // 亮面细节
+
+        // A. 机身主体 (胶囊形状，模拟 Magic Mouse 或 Pebble 风格)
+        // 使用球体压扁
+        const bodyGeo = new THREE.SphereGeometry(1.4, 64, 64);
+        bodyGeo.applyMatrix4(new THREE.Matrix4().makeScale(1, 0.35, 1.6)); // 压扁拉长
+        
+        // 稍微削平底部
+        const pos = bodyGeo.attributes.position;
+        for(let i=0; i<pos.count; i++){
+            if(pos.getY(i) < -0.1) pos.setY(i, -0.1);
+        }
+        bodyGeo.computeVertexNormals();
+
+        const bodyMesh = new THREE.Mesh(bodyGeo, mouseMaterial);
+        bodyMesh.castShadow = true;
+        bodyMesh.receiveShadow = true;
+        mouseGroup.add(bodyMesh);
+
+        // B. 滚轮 (金属质感)
+        const wheelGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.08, 32);
+        const wheelMat = new THREE.MeshStandardMaterial({ 
+            color: 0xdddddd, 
+            metalness: 0.8, 
+            roughness: 0.2 
+        });
+        const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+        wheel.rotation.z = Math.PI / 2;
+        wheel.position.set(0, 0.35, 0.5); // 放在前部顶部
+        mouseGroup.add(wheel);
+
+        // C. 滚轮凹槽 (视觉修饰)
+        const grooveGeo = new THREE.BoxGeometry(0.1, 0.02, 0.4);
+        const groove = new THREE.Mesh(grooveGeo, detailMaterial);
+        groove.position.set(0, 0.35, 0.5);
+        mouseGroup.add(groove);
+
+        // D. 底部投影平面 (让鼠标看起来放在桌子上)
+        const planeGeo = new THREE.PlaneGeometry(10, 10);
+        const planeMat = new THREE.ShadowMaterial({ opacity: 0.1 }); // 仅显示阴影
+        const plane = new THREE.Mesh(planeGeo, planeMat);
+        plane.rotation.x = -Math.PI / 2;
+        plane.position.y = -0.1; // 贴在鼠标底部下方
+        plane.receiveShadow = true;
+        mouseGroup.add(plane);
+
+        scene.add(mouseGroup);
+
+        // --- 4. 动画逻辑 ---
+        
+        let targetX = 2.5; // 桌面端默认在右侧
+        
+        // 简单的响应式判断
+        if(window.innerWidth < 768) {
+            targetX = 0; // 手机端居中
+            mouseGroup.scale.set(0.8, 0.8, 0.8); // 手机端缩小一点
+            camera.position.y = 4; // 手机端相机高一点
+        }
+
+        mouseGroup.position.x = targetX;
+
+        // 监听滚动
+        function onScroll() {
+            const scrollY = window.scrollY;
+            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            const scrollPercent = scrollY / maxScroll;
+
+            // 1. 旋转逻辑：
+            // 初始态：稍微侧一点 (便于看清立体感)
+            // 滚动时：缓慢旋转展示各面
+            const baseRotationY = -0.5 + (scrollPercent * Math.PI * 2); 
+            const baseRotationX = 0.2 - (scrollPercent * 0.5); 
+
+            // 2. 位置逻辑：
+            // 向下滚动到第二屏时，鼠标移动到中间
+            let moveX = targetX;
+            if (scrollPercent > 0.2 && window.innerWidth > 768) {
+                moveX = 0; // 移动到屏幕中心
+            }
+
+            // 使用简单的缓动 (Lerp) 让动画更平滑
+            // 这里直接在 animate 循环里做 lerp，这里只计算目标值
+            return { rotY: baseRotationY, rotX: baseRotationX, x: moveX };
+        }
+
+        // 鼠标悬浮视差效果
+        let cursorX = 0, cursorY = 0;
+        document.addEventListener('mousemove', (e) => {
+            cursorX = (e.clientX - window.innerWidth / 2) * 0.0005;
+            cursorY = (e.clientY - window.innerHeight / 2) * 0.0005;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const targetState = onScroll();
+
+            // 平滑过渡旋转
+            mouseGroup.rotation.y += (targetState.rotY + cursorX - mouseGroup.rotation.y) * 0.05;
+            mouseGroup.rotation.x += (targetState.rotX + cursorY - mouseGroup.rotation.x) * 0.05;
+            
+            // 平滑过渡位置
+            mouseGroup.position.x += (targetState.x - mouseGroup.position.x) * 0.05;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // 窗口调整
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            
+            if(window.innerWidth < 768) {
+                targetX = 0;
+                camera.position.y = 4;
+            } else {
+                targetX = 2.5;
+                camera.position.y = 2;
+            }
+        });
+    </script>
+</body>
+</html>
