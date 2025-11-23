@@ -21,6 +21,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             color: var(--text-main);
             overflow-x: hidden;
+            scroll-behavior: smooth;
         }
 
         /* 导航栏 */
@@ -36,6 +37,7 @@
             backdrop-filter: blur(20px);
             z-index: 100;
             box-sizing: border-box;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
         }
         .logo { font-weight: 700; font-size: 1.2rem; letter-spacing: -0.5px; }
         .nav-links a {
@@ -170,13 +172,19 @@
 </head>
 <body>
 
+    <!-- 这里设置你需要跳转的链接变量 -->
+    <script>
+        const BUY_LINK = "https://www.apple.com.cn/shop/product/mxk53ch/a?fnode=189ee6645795953861657348aa405dd2d70bc7d37de5907437b0e63e1d8a5c40554185da0bac0f48f32de9e8f7ff21c6791d51e234bc52e26d65dcf0d2ceb66eb026213ccdae391f26c4066430541d625ada0ca2b48c34701fbf52db8bde848c";
+    </script>
+
     <nav>
         <div class="logo">LUMA</div>
         <div class="nav-links">
             <a href="#">概览</a>
             <a href="#">技术规格</a>
             <a href="#">比较</a>
-            <a href="#" class="buy-btn-nav">购买</a>
+            <!-- 导航栏购买按钮 -->
+            <a href="https://www.apple.com.cn/shop/product/mxk53ch/a?fnode=189ee6645795953861657348aa405dd2d70bc7d37de5907437b0e63e1d8a5c40554185da0bac0f48f32de9e8f7ff21c6791d51e234bc52e26d65dcf0d2ceb66eb026213ccdae391f26c4066430541d625ada0ca2b48c34701fbf52db8bde848c" target="_blank" class="buy-btn-nav">购买</a>
         </div>
     </nav>
 
@@ -190,7 +198,8 @@
             <p class="desc">专为创意工作者打造。以纯粹的形式，承载无限的灵感。</p>
             <div class="price">RMB 599 起</div>
             <div class="cta-group">
-                <a href="#" class="btn-primary">购买</a>
+                <!-- 主购买按钮 -->
+                <a href="https://www.apple.com.cn/shop/product/mxk53ch/a?fnode=189ee6645795953861657348aa405dd2d70bc7d37de5907437b0e63e1d8a5c40554185da0bac0f48f32de9e8f7ff21c6791d51e234bc52e26d65dcf0d2ceb66eb026213ccdae391f26c4066430541d625ada0ca2b48c34701fbf52db8bde848c" target="_blank" class="btn-primary">购买</a>
                 <a href="#" class="btn-link">观看影片 ></a>
             </div>
         </section>
@@ -221,7 +230,8 @@
             <h2 style="font-size: 3rem;">LUMA X1</h2>
             <p>轻盈，却充满力量。</p>
             <br>
-            <a href="#" class="btn-primary" style="background: #000;">立即订购</a>
+            <!-- 底部购买按钮 -->
+            <a href="https://www.apple.com.cn/shop/product/mxk53ch/a?fnode=189ee6645795953861657348aa405dd2d70bc7d37de5907437b0e63e1d8a5c40554185da0bac0f48f32de9e8f7ff21c6791d51e234bc52e26d65dcf0d2ceb66eb026213ccdae391f26c4066430541d625ada0ca2b48c34701fbf52db8bde848c" target="_blank" class="btn-primary" style="background: #000;">立即订购</a>
         </section>
     </div>
 
@@ -236,23 +246,19 @@
         scene.fog = new THREE.Fog(0xfbfbfd, 10, 20);
 
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        // 初始相机位置
         camera.position.set(0, 2, 8);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.shadowMap.enabled = true; // 开启阴影
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // 柔和阴影
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         container.appendChild(renderer.domElement);
 
         // --- 2. 影棚级布光 (柔和、高级) ---
-        
-        // 环境光：基础亮度
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6); 
         scene.add(ambientLight);
 
-        // 主光：产生主要的形状感
         const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
         keyLight.position.set(5, 10, 7);
         keyLight.castShadow = true;
@@ -261,7 +267,6 @@
         keyLight.shadow.bias = -0.0001;
         scene.add(keyLight);
 
-        // 补光：照亮暗部，带一点冷色调
         const fillLight = new THREE.DirectionalLight(0xeef5ff, 0.4);
         fillLight.position.set(-5, 2, -5);
         scene.add(fillLight);
@@ -269,21 +274,18 @@
         // --- 3. 构建产品级鼠标模型 ---
         const mouseGroup = new THREE.Group();
 
-        // 材质：哑光黑 (Matte Black) 或 深空灰
+        // 材质：哑光黑 (Matte Black)
         const mouseMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x2a2a2a,   // 深灰色
-            roughness: 0.4,    // 稍微有点磨砂感
-            metalness: 0.1,    // 一点点金属感
+            color: 0x2a2a2a,   
+            roughness: 0.4,    
+            metalness: 0.1,    
         });
         
-        const detailMaterial = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2 }); // 亮面细节
+        const detailMaterial = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2 }); 
 
-        // A. 机身主体 (胶囊形状，模拟 Magic Mouse 或 Pebble 风格)
-        // 使用球体压扁
+        // 机身主体
         const bodyGeo = new THREE.SphereGeometry(1.4, 64, 64);
         bodyGeo.applyMatrix4(new THREE.Matrix4().makeScale(1, 0.35, 1.6)); // 压扁拉长
-        
-        // 稍微削平底部
         const pos = bodyGeo.attributes.position;
         for(let i=0; i<pos.count; i++){
             if(pos.getY(i) < -0.1) pos.setY(i, -0.1);
@@ -295,7 +297,7 @@
         bodyMesh.receiveShadow = true;
         mouseGroup.add(bodyMesh);
 
-        // B. 滚轮 (金属质感)
+        // 滚轮
         const wheelGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.08, 32);
         const wheelMat = new THREE.MeshStandardMaterial({ 
             color: 0xdddddd, 
@@ -304,64 +306,38 @@
         });
         const wheel = new THREE.Mesh(wheelGeo, wheelMat);
         wheel.rotation.z = Math.PI / 2;
-        wheel.position.set(0, 0.35, 0.5); // 放在前部顶部
+        wheel.position.set(0, 0.35, 0.5);
         mouseGroup.add(wheel);
 
-        // C. 滚轮凹槽 (视觉修饰)
+        // 滚轮凹槽
         const grooveGeo = new THREE.BoxGeometry(0.1, 0.02, 0.4);
         const groove = new THREE.Mesh(grooveGeo, detailMaterial);
         groove.position.set(0, 0.35, 0.5);
         mouseGroup.add(groove);
 
-        // D. 底部投影平面 (让鼠标看起来放在桌子上)
+        // 底部阴影层
         const planeGeo = new THREE.PlaneGeometry(10, 10);
-        const planeMat = new THREE.ShadowMaterial({ opacity: 0.1 }); // 仅显示阴影
+        const planeMat = new THREE.ShadowMaterial({ opacity: 0.1 }); 
         const plane = new THREE.Mesh(planeGeo, planeMat);
         plane.rotation.x = -Math.PI / 2;
-        plane.position.y = -0.1; // 贴在鼠标底部下方
+        plane.position.y = -0.1;
         plane.receiveShadow = true;
         mouseGroup.add(plane);
 
         scene.add(mouseGroup);
 
         // --- 4. 动画逻辑 ---
+        let targetX = 2.5; 
         
-        let targetX = 2.5; // 桌面端默认在右侧
-        
-        // 简单的响应式判断
         if(window.innerWidth < 768) {
-            targetX = 0; // 手机端居中
-            mouseGroup.scale.set(0.8, 0.8, 0.8); // 手机端缩小一点
-            camera.position.y = 4; // 手机端相机高一点
+            targetX = 0; 
+            mouseGroup.scale.set(0.8, 0.8, 0.8);
+            camera.position.y = 4; 
         }
 
         mouseGroup.position.x = targetX;
 
-        // 监听滚动
-        function onScroll() {
-            const scrollY = window.scrollY;
-            const maxScroll = document.body.scrollHeight - window.innerHeight;
-            const scrollPercent = scrollY / maxScroll;
-
-            // 1. 旋转逻辑：
-            // 初始态：稍微侧一点 (便于看清立体感)
-            // 滚动时：缓慢旋转展示各面
-            const baseRotationY = -0.5 + (scrollPercent * Math.PI * 2); 
-            const baseRotationX = 0.2 - (scrollPercent * 0.5); 
-
-            // 2. 位置逻辑：
-            // 向下滚动到第二屏时，鼠标移动到中间
-            let moveX = targetX;
-            if (scrollPercent > 0.2 && window.innerWidth > 768) {
-                moveX = 0; // 移动到屏幕中心
-            }
-
-            // 使用简单的缓动 (Lerp) 让动画更平滑
-            // 这里直接在 animate 循环里做 lerp，这里只计算目标值
-            return { rotY: baseRotationY, rotX: baseRotationX, x: moveX };
-        }
-
-        // 鼠标悬浮视差效果
+        // 鼠标视差
         let cursorX = 0, cursorY = 0;
         document.addEventListener('mousemove', (e) => {
             cursorX = (e.clientX - window.innerWidth / 2) * 0.0005;
@@ -371,25 +347,32 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            const targetState = onScroll();
+            const scrollY = window.scrollY;
+            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            const scrollPercent = scrollY / maxScroll;
 
-            // 平滑过渡旋转
-            mouseGroup.rotation.y += (targetState.rotY + cursorX - mouseGroup.rotation.y) * 0.05;
-            mouseGroup.rotation.x += (targetState.rotX + cursorY - mouseGroup.rotation.x) * 0.05;
-            
-            // 平滑过渡位置
-            mouseGroup.position.x += (targetState.x - mouseGroup.position.x) * 0.05;
+            // 滚动时的目标位置与旋转
+            let moveX = targetX;
+            if (scrollPercent > 0.2 && window.innerWidth > 768) {
+                moveX = 0; 
+            }
+
+            const targetRotY = -0.5 + (scrollPercent * Math.PI * 2);
+            const targetRotX = 0.2 - (scrollPercent * 0.5);
+
+            // 平滑插值
+            mouseGroup.rotation.y += (targetRotY + cursorX - mouseGroup.rotation.y) * 0.05;
+            mouseGroup.rotation.x += (targetRotX + cursorY - mouseGroup.rotation.x) * 0.05;
+            mouseGroup.position.x += (moveX - mouseGroup.position.x) * 0.05;
 
             renderer.render(scene, camera);
         }
         animate();
 
-        // 窗口调整
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            
             if(window.innerWidth < 768) {
                 targetX = 0;
                 camera.position.y = 4;
